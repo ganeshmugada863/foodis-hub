@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>FOODIES HUB - Settings</title>
+    <link rel="shortcut icon" href="360_F_515275009_6AZLix2GUxBZhfDjbml1LRmTNFmhVOvX.jpg" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+</head>
+<style>
+    .settings-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .setting-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    .setting-card:hover {
+        transform: translateY(-2px);
+    }
+    .setting-icon {
+        font-size: 2rem;
+        margin-right: 15px;
+        color: #007bff;
+    }
+    .aurora-text {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #ff0099, #9c5c08de, #031ac7, #dc0a0a);
+        background-size: 300% 300%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: aurora 8s ease infinite;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    @keyframes aurora {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+</style>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="settings-container">
+            <h1 class="aurora-text">Settings</h1>
+            
+            <div class="setting-card" onclick="showProfile()">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-user setting-icon"></i>
+                    <div>
+                        <h5>Profile</h5>
+                        <p class="text-muted mb-0">View and edit your profile information</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-card" onclick="showFavorites()">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-heart setting-icon"></i>
+                    <div>
+                        <h5>Favorites</h5>
+                        <p class="text-muted mb-0">View your favorite food items</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-card" onclick="showWaitlist()">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-clock setting-icon"></i>
+                    <div>
+                        <h5>Waitlist</h5>
+                        <p class="text-muted mb-0">Items you want to try later</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-card" onclick="showAddressSettings()">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-map-marker-alt setting-icon"></i>
+                    <div>
+                        <h5>Address Settings</h5>
+                        <p class="text-muted mb-0">Manage your delivery addresses</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-card" onclick="goBack()">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-arrow-left setting-icon"></i>
+                    <div>
+                        <h5>Back to Home</h5>
+                        <p class="text-muted mb-0">Return to main page</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="profileContent">
+                    <!-- Profile content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Favorites Modal -->
+    <div class="modal fade" id="favoritesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Favorites</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="favoritesContent">
+                    <!-- Favorites content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Waitlist Modal -->
+    <div class="modal fade" id="waitlistModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Waitlist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="waitlistContent">
+                    <!-- Waitlist content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Address Settings Modal -->
+    <div class="modal fade" id="addressModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Address Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addressForm">
+                        <div class="mb-3">
+                            <label for="fullAddress" class="form-label">Full Address</label>
+                            <textarea class="form-control" id="fullAddress" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="zipCode" class="form-label">ZIP Code</label>
+                            <input type="text" class="form-control" id="zipCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Address</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        let currentUser = null;
+        let userData = {};
+
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+            } else {
+                window.location.href = 'register.html';
+            }
+        });
+
+        async function loadUserData() {
+            const doc = await firebase.firestore().collection('users').doc(currentUser.uid).get();
+            if (doc.exists) {
+                userData = doc.data();
+            }
+        }
+
+        function showProfile() {
+            document.getElementById('profileContent').innerHTML = `
+                <div class="text-center mb-3">
+                    <i class="fas fa-user-circle" style="font-size: 4rem; color: #007bff;"></i>
+                </div>
+                <p><strong>Name:</strong> ${userData.fullName || 'Not provided'}</p>
+                <p><strong>Email:</strong> ${userData.email || 'Not provided'}</p>
+                <p><strong>Phone:</strong> ${userData.phone || 'Not provided'}</p>
+                <p><strong>Member Since:</strong> ${userData.createdAt ? new Date(userData.createdAt.toDate()).toLocaleDateString() : 'Unknown'}</p>
+            `;
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+        }
+
+        function showFavorites() {
+            const favorites = userData.favorites || [];
+            const foodItems = getFoodItems();
+            const favoriteItems = foodItems.filter(item => favorites.includes(item.id));
+
+            let content = '';
+            if (favoriteItems.length === 0) {
+                content = '<p class="text-center">No favorite items yet!</p>';
+            } else {
+                content = '<div class="row">';
+                favoriteItems.forEach(item => {
+                    content += `
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <img src="${item.image}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h6 class="card-title">${item.name}</h6>
+                                    <p class="card-text text-success">$${item.price}</p>
+                                    <button class="btn btn-sm btn-danger" onclick="removeFromFavorites(${item.id})">
+                                        <i class="fas fa-heart-broken"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                content += '</div>';
+            }
+
+            document.getElementById('favoritesContent').innerHTML = content;
+            new bootstrap.Modal(document.getElementById('favoritesModal')).show();
+        }
+
+        function showWaitlist() {
+            const waitlist = userData.waitlist || [];
+            const foodItems = getFoodItems();
+            const waitlistItems = foodItems.filter(item => waitlist.includes(item.id));
+
+            let content = '';
+            if (waitlistItems.length === 0) {
+                content = '<p class="text-center">No items in waitlist!</p>';
+            } else {
+                content = '<div class="row">';
+                waitlistItems.forEach(item => {
+                    content += `
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <img src="${item.image}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h6 class="card-title">${item.name}</h6>
+                                    <p class="card-text text-success">$${item.price}</p>
+                                    <button class="btn btn-sm btn-warning" onclick="removeFromWaitlist(${item.id})">
+                                        <i class="fas fa-clock"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                content += '</div>';
+            }
+
+            document.getElementById('waitlistContent').innerHTML = content;
+            new bootstrap.Modal(document.getElementById('waitlistModal')).show();
+        }
+
+        function showAddressSettings() {
+            if (userData.address) {
+                document.getElementById('fullAddress').value = userData.address.fullAddress || '';
+                document.getElementById('city').value = userData.address.city || '';
+                document.getElementById('state').value = userData.address.state || '';
+                document.getElementById('zipCode').value = userData.address.zipCode || '';
+                document.getElementById('phone').value = userData.address.phone || userData.phone || '';
+            }
+            new bootstrap.Modal(document.getElementById('addressModal')).show();
+        }
+
+        document.getElementById('addressForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const address = {
+                fullAddress: document.getElementById('fullAddress').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zipCode: document.getElementById('zipCode').value,
+                phone: document.getElementById('phone').value
+            };
+
+            await firebase.firestore().collection('users').doc(currentUser.uid).update({
+                address: address
+            });
+
+            userData.address = address;
+            alert('Address saved successfully!');
+            bootstrap.Modal.getInstance(document.getElementById('addressModal')).hide();
+        });
+
+        async function removeFromFavorites(itemId) {
+            const favorites = userData.favorites || [];
+            const index = favorites.indexOf(itemId);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                await firebase.firestore().collection('users').doc(currentUser.uid).update({
+                    favorites: favorites
+                });
+                userData.favorites = favorites;
+                showFavorites();
+            }
+        }
+
+        async function removeFromWaitlist(itemId) {
+            const waitlist = userData.waitlist || [];
+            const index = waitlist.indexOf(itemId);
+            if (index > -1) {
+                waitlist.splice(index, 1);
+                await firebase.firestore().collection('users').doc(currentUser.uid).update({
+                    waitlist: waitlist
+                });
+                userData.waitlist = waitlist;
+                showWaitlist();
+            }
+        }
+
+        function getFoodItems() {
+            return [
+                { id: 1, name: "Fresh Salad", image: "Salad.jpg", price: 12.99 },
+                { id: 2, name: "Paneer Tikka", image: "Paneer Tikka.avif", price: 18.99 },
+                { id: 3, name: "Veggie Pasta", image: "Veggie Pasta.jpg", price: 15.99 },
+                { id: 4, name: "Vegetable Curry", image: "Vegetable Curry.jpg", price: 16.99 },
+                { id: 5, name: "Veggie Burger", image: "Veggie Burger.jpg", price: 13.99 },
+                { id: 6, name: "Minestrone Soup", image: "Minestrone Soup.jpg", price: 9.99 },
+                { id: 7, name: "Grilled Chicken", image: "Grilled Chicken.webp", price: 22.99 },
+                { id: 8, name: "Fish Curry", image: "Fish Curry.jpg", price: 24.99 },
+                { id: 9, name: "Mutton Biryani", image: "Mutton Biryani.jpg", price: 28.99 },
+                { id: 10, name: "Chicken Wings", image: "Chicken Wings.png", price: 19.99 },
+                { id: 11, name: "Prawn Masala", image: "Shrimp Pasta.jpg", price: 26.99 },
+                { id: 12, name: "Egg Curry", image: "Egg Curry.jpg", price: 14.99 }
+            ];
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
+
